@@ -47,7 +47,8 @@ async function run(bytes) {
   }
 }
 
-function showForm(buffer, salt) {
+// The form shows at once; the download of game.bin finishes in the background (awaited on submit).
+function showForm(payload) {
   const input = el('input', {
     class: 'field', type: 'password', autocomplete: 'current-password', autocapitalize: 'none',
     spellcheck: 'false', placeholder: 'Hasło', 'aria-label': 'Hasło do gry',
@@ -65,6 +66,14 @@ function showForm(buffer, salt) {
     button.disabled = true;
     button.textContent = 'Sprawdzam…';
     error.textContent = '';
+    let buffer;
+    let salt;
+    try {
+      ({ buffer, salt } = await payload);
+    } catch {
+      showMessage('Nie udało się wczytać gry. Sprawdź połączenie i odśwież stronę.');
+      return;
+    }
     let bytes = null;
     try {
       const key = await deriveKey(input.value, salt);
@@ -85,31 +94,35 @@ function showForm(buffer, salt) {
   setTimeout(() => input.focus({ preventScroll: true }), 350);
 }
 
+async function load() {
+  const response = await fetch('game.bin', { cache: 'no-cache' });
+  if (!response.ok) throw new Error(String(response.status));
+  const buffer = await response.arrayBuffer();
+  return { buffer, salt: readHeader(buffer).salt };
+}
+
 async function boot() {
-  let buffer;
-  let salt;
-  try {
-    const response = await fetch('game.bin', { cache: 'no-cache' });
-    if (!response.ok) throw new Error(String(response.status));
-    buffer = await response.arrayBuffer();
-    salt = readHeader(buffer).salt;
-  } catch {
-    showMessage('Nie udało się wczytać gry. Sprawdź połączenie i odśwież stronę.');
-    return;
-  }
+  const payload = load();
+  payload.catch(() => {}); // handled where it is awaited
   const saved = remembered();
-  if (saved && saved.salt === toB64(salt)) {
+  if (!saved) return showForm(payload);
+  let loaded;
+  try {
+    loaded = await payload;
+  } catch {
+    return showMessage('Nie udało się wczytać gry. Sprawdź połączenie i odśwież stronę.');
+  }
+  if (saved.salt === toB64(loaded.salt)) {
     let bytes = null;
     try {
-      bytes = await open(await importKey(saved.key), buffer);
+      bytes = await open(await importKey(saved.key), loaded.buffer);
     } catch {
-      forget();
+      // the key no longer opens this file
     }
     if (bytes) return run(bytes);
-  } else if (saved) {
-    forget();
   }
-  showForm(buffer, salt);
+  forget(); // key from an older password
+  showForm(payload);
 }
 
 boot();
