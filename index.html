@@ -22,16 +22,23 @@
 <link rel="stylesheet" href="css/mechanics.css">
 <link rel="stylesheet" href="css/screens.css">
 <link rel="stylesheet" href="css/sim.css">
+<link rel="stylesheet" href="css/desktop.css">
 <style>.gate-error { min-height: 1.3em; margin: 0; }</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="gm-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f8cff"/><stop offset=".55" stop-color="#9b72ff"/><stop offset="1" stop-color="#ff7aa8"/></linearGradient></defs></svg>
 <main class="stage">
+  <header class="desk-bar">
+    <span class="desk-title">Tydzień z&nbsp;Gemini</span>
+    <span class="desk-time" data-role="desk-time" aria-label="Godzina w grze">8:58</span>
+    <div data-role="desk-switch"></div>
+  </header>
   <aside class="stage-aside">
     <p class="aside-kicker">Gra po warsztatach</p>
     <h1 class="aside-title">Tydzień z&nbsp;Gemini</h1>
     <p class="aside-sub">Dzień gry po każdym warsztacie. Na końcu Twoja biblioteka promptów, gotowa do skopiowania.</p>
     <p class="aside-hint">Graj myszką albo klawiaturą: strzałki, Enter, Esc.</p>
+    <div class="aside-switch" data-role="aside-switch"></div>
   </aside>
   <div class="laptop" id="laptop" hidden>
     <div class="laptop-lid"><div class="laptop-screen" data-role="laptop-screen"></div></div>
