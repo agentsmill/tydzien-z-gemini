@@ -5,10 +5,11 @@
 export const ITERATIONS = 600000;
 const VERSION = 1;
 
-// Players type on phones: ignore case, diacritics and the separator they pick (space, hyphen, underscore).
+// The password is said out loud at the workshop and typed on phones: ignore case, diacritics,
+// spaces and separators, so "Kot Ma Ale 2026" and "kotmaale2026" are the same.
 export function normalizePassword(text) {
   return String(text).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[łŁ]/g, 'l')
-    .toLowerCase().trim().replace(/[\s_\-–—]+/g, '-');
+    .toLowerCase().replace(/[\s_\-–—]+/g, '');
 }
 
 export async function deriveKey(password, salt) {
